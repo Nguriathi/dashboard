@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mombasa Marine Supply - Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .fade-in {
+            animation: fadeIn 0.3s ease-out forwards;
+        }
+        
+        .sidebar {
+            transition: transform 0.3s ease;
+        }
+        
+        .sidebar-closed {
+            transform: translateX(-100%);
+        }
+        
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        
+        .active-nav-item {
+            background-color: rgba(59, 130, 246, 0.1);
+            border-left: 4px solid rgb(59, 130, 246);
+        }
+        
+        .dropdown-enter {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        
+        .dropdown-enter-active {
+            opacity: 1;
+            transform: translateY(0);
+            transition: all 0.2s ease;
+        }
+        
+        .dropdown-exit {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .dropdown-exit-active {
+            opacity: 0;
+            transform: translateY(-10px);
+            transition: all 0.2s ease;
+        }
+    </style>
+</head>
+<body class="bg-gray-50 font-sans">
+    <div class="flex h-screen overflow-hidden">
+        <!-- Sidebar -->
+        <div id="sidebar" class="sidebar bg-white w-64 md:w-72 flex-shrink-0 shadow-lg md:shadow-none md:relative fixed z-50 h-full">
+            <div class="p-4 border-b border-gray-200">
+                <div class="flex items-center justify-between">
+                    <div class="flex items-center">
+                        <div class="w-10 h-10 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">MM</div>
+                        <span class="ml-3 font-semibold text-lg">Mombasa Marine Supply</span>
+                    </div>
+                    <button id="sidebarToggle" class="md:hidden text-gray-500 hover:text-gray-700">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="p-4 border-b border-gray-200">
+                <div class="flex items-center">
+                    <div class="relative">
+                        <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User" class="w-10 h-10 rounded-full">
+                        <span class="absolute bottom-0 right-0 w-3 h-3 bg-green-500 rounded-full border-2 border-white"></span>
+                    </div>
+                    <div class="ml-3">
+                        <div class="font-medium">Captain Alex</div>
+                        <div class="text-sm text-gray-500">alex.smith@example.com</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="overflow-y-auto h-[calc(100%-180px)]">
+                <div class="p-4">
+                    <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">MAIN MENU</div>
+                    <nav>
+                        <a href="#" class="nav-item active-nav-item flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-blue-50 transition-colors mb-1" data-page="overview">
+                            <i class="fas fa-chart-pie mr-3 text-gray-500"></i>
+                            Overview
+                        </a>
+                        <a href="#" class="nav-item flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-blue-50 transition-colors mb-1" data-page="orders">
+                            <i class="fas fa-shopping-cart mr-3 text-gray-500"></i>
+                            Orders
+                        </a>
+                        <a href="#" class="nav-item flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-blue-50 transition-colors mb-1" data-page="inventory">
+                            <i class="fas fa-box-open mr-3 text-gray-500"></i>
+                            Inventory
+                        </a>
+                        <a href="#" class="nav-item flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-blue-50 transition-colors mb-1" data-page="customers">
+                            <i class="fas fa-users mr-3 text-gray-500"></i>
+                            Customers
+                        </a>
+                    </nav>
+                </div>
+                
+                <div class="p-4">
+                    <div class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">OTHER</div>
+                    <nav>
+                        <a href="#" class="nav-item flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-blue-50 transition-colors mb-1" data-page="settings">
+                            <i class="fas fa-cog mr-3 text-gray-500"></i>
+                            Settings
+                        </a>
+                        <a href="#" class="nav-item flex items-center px-3 py-2 text-sm font-medium rounded-md text-gray-700 hover:bg-blue-50 transition-colors mb-1" data-page="help">
+                            <i class="fas fa-question-circle mr-3 text-gray-500"></i>
+                            Help Center
+                        </a>
+                    </nav>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Main Content -->
+        <div class="flex-1 flex flex-col overflow-hidden">
+            <!-- Top Navigation -->
+            <header class="bg-white shadow-sm z-10">
+                <div class="px-4 sm:px-6 lg:px-8">
+                    <div class="flex items-center justify-between h-16">
+                        <div class="flex items-center">
+                            <button id="mobileSidebarToggle" class="md:hidden text-gray-500 hover:text-gray-700 mr-2">
+                                <i class="fas fa-bars"></i>
+                            </button>
+                            <div class="hidden md:block">
+                                <div class="w-8 h-8 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold">MM</div>
+                            </div>
+                        </div>
+                        
+                        <div class="flex-1 px-4 text-center md:text-left">
+                            <h1 class="text-lg font-medium text-gray-900">Welcome, Captain Alex 👋</h1>
+                        </div>
+                        
+                        <div class="flex items-center">
+                            <div class="relative mx-4">
+                                <input type="text" placeholder="Search..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-40 md:w-64">
+                                <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                            </div>
+                            
+                            <button class="p-2 text-gray-500 hover:text-gray-700 mx-1">
+                                <i class="fas fa-bell"></i>
+                            </button>
+                            
+                            <button class="p-2 text-gray-500 hover:text-gray-700 mx-1">
+                                <i class="fas fa-expand"></i>
+                            </button>
+                            
+                            <div class="relative ml-2">
+                                <button id="userMenuButton" class="flex items-center focus:outline-none">
+                                    <img src="https://randomuser.me/api/portraits/men/32.jpg" alt="User" class="w-8 h-8 rounded-full">
+                                </button>
+                                <div id="userMenu" class="hidden absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Profile Settings</a>
+                                    <a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">Logout</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </header>
+            
+            <!-- Main Content Area -->
+            <main class="flex-1 overflow-y-auto p-4 md:p-8 bg-gray-50" id="mainContent">
+                <!-- Overview Page (Default) -->
+                <div id="overviewPage" class="page-content">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
+                        <!-- Total Orders Card -->
+                        <div class="bg-white p-6 rounded-lg shadow-sm card-hover transition-all duration-200 fade-in">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-500">Total Orders (Last 30 Days)</p>
+                                    <p class="mt-2 text-3xl font-semibold text-gray-900">128</p>
+                                </div>
+                                <div class="bg-blue-50 p-3 rounded-full">
+                                    <i class="fas fa-shopping-cart text-blue-500"></i>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex items-center">
+                                <span class="text-green-500 text-sm font-medium flex items-center">
+                                    <i class="fas fa-arrow-up mr-1"></i> 5%
+                                </span>
+                                <span class="text-gray-500 text-sm ml-2">vs last period</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Total Revenue Card -->
+                        <div class="bg-white p-6 rounded-lg shadow-sm card-hover transition-all duration-200 fade-in">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-500">Total Revenue (Last 30 Days)</p>
+                                    <p class="mt-2 text-3xl font-semibold text-gray-900">KES 1,250,000</p>
+                                </div>
+                                <div class="bg-green-50 p-3 rounded-full">
+                                    <i class="fas fa-money-bill-wave text-green-500"></i>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex items-center">
+                                <span class="text-green-500 text-sm font-medium flex items-center">
+                                    <i class="fas fa-arrow-up mr-1"></i> 10%
+                                </span>
+                                <span class="text-gray-500 text-sm ml-2">vs last period</span>
+                            </div>
+                        </div>
+                        
+                        <!-- Average Order Value Card -->
+                        <div class="bg-white p-6 rounded-lg shadow-sm card-hover transition-all duration-200 fade-in">
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="text-sm font-medium text-gray-500">Average Order Value</p>
+                                    <p class="mt-2 text-3xl font-semibold text-gray-900">KES 9,765</p>
+                                </div>
+                                <div class="bg-purple-50 p-3 rounded-full">
+                                    <i class="fas fa-chart-line text-purple-500"></i>
+                                </div>
+                            </div>
+                            <div class="mt-4 flex items-center">
+                                <span class="text-red-500 text-sm font-medium flex items-center">
+                                    <i class="fas fa-arrow-down mr-1"></i> 2%
+                                </span>
+                                <span class="text-gray-500 text-sm ml-2">vs last period</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+                        <!-- Top Product Categories Chart -->
+                        <div class="bg-white p-6 rounded-lg shadow-sm card-hover transition-all duration-200 fade-in">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Top Product Categories</h3>
+                            <div class="h-64">
+                                <canvas id="productCategoriesChart"></canvas>
+                            </div>
+                        </div>
+                        
+                        <!-- Monthly Financials Chart -->
+                        <div class="bg-white p-6 rounded-lg shadow-sm card-hover transition-all duration-200 fade-in">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Monthly Financials</h3>
+                            <div class="h-64">
+                                <canvas id="monthlyFinancialsChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+                        <!-- Quick Action Card -->
+                        <div class="bg-white p-6 rounded-lg shadow-sm card-hover transition-all duration-200 fade-in">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">New Order Entry</h3>
+                            <p class="text-gray-600 mb-6">Quickly create new orders or import vessel requirements.</p>
+                            <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg w-full transition-colors duration-200">
+                                Create New Order
+                            </button>
+                        </div>
+                        
+                        <!-- Order Volume Trend Chart -->
+                        <div class="bg-white p-6 rounded-lg shadow-sm card-hover transition-all duration-200 fade-in lg:col-span-2">
+                            <h3 class="text-lg font-medium text-gray-900 mb-4">Order Volume Trend</h3>
+                            <div class="h-64">
+                                <canvas id="orderTrendChart"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Deliveries by Location Chart -->
+                    <div class="bg-white p-6 rounded-lg shadow-sm card-hover transition-all duration-200 fade-in mb-6">
+                        <h3 class="text-lg font-medium text-gray-900 mb-4">Deliveries by Location</h3>
+                        <div class="h-64">
+                            <canvas id="deliveriesChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Orders Page -->
+                <div id="ordersPage" class="page-content hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800">Orders Management</h2>
+                        <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200">
+                            <i class="fas fa-plus mr-2"></i> Create New Order
+                        </button>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden mb-6 fade-in">
+                        <div class="p-4 border-b border-gray-200">
+                            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                                <div class="relative mb-4 md:mb-0 md:w-64">
+                                    <input type="text" placeholder="Search orders..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-full">
+                                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <select class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        <option>All Status</option>
+                                        <option>Pending</option>
+                                        <option>In Progress</option>
+                                        <option>Delivered</option>
+                                        <option>Cancelled</option>
+                                    </select>
+                                    <input type="date" class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <button class="bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg transition-colors duration-200">
+                                        <i class="fas fa-filter"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vessel Name</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Port Call Date</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Delivery Date</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Value</th>
+                                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#ORD-2023-001</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">MV Ocean Star</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2023-06-15</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2023-06-16</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800">Delivered</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">KES 245,000</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <button class="text-blue-600 hover:text-blue-900 mr-3"><i class="fas fa-eye"></i></button>
+                                            <button class="text-yellow-600 hover:text-yellow-900 mr-3"><i class="fas fa-pencil-alt"></i></button>
+                                            <button class="text-red-600 hover:text-red-900"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#ORD-2023-002</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">MV Sea Breeze</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2023-06-18</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2023-06-19</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-yellow-100 text-yellow-800">In Progress</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">KES 178,500</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <button class="text-blue-600 hover:text-blue-900 mr-3"><i class="fas fa-eye"></i></button>
+                                            <button class="text-yellow-600 hover:text-yellow-900 mr-3"><i class="fas fa-pencil-alt"></i></button>
+                                            <button class="text-red-600 hover:text-red-900"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#ORD-2023-003</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">MV Horizon</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2023-06-20</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2023-06-21</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-800">Pending</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">KES 320,750</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <button class="text-blue-600 hover:text-blue-900 mr-3"><i class="fas fa-eye"></i></button>
+                                            <button class="text-yellow-600 hover:text-yellow-900 mr-3"><i class="fas fa-pencil-alt"></i></button>
+                                            <button class="text-red-600 hover:text-red-900"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">#ORD-2023-004</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">MV Coral Princess</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2023-06-22</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2023-06-23</td>
+                                        <td class="px-6 py-4 whitespace-nowrap">
+                                            <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800">Cancelled</span>
+                                        </td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">KES 95,000</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <button class="text-blue-600 hover:text-blue-900 mr-3"><i class="fas fa-eye"></i></button>
+                                            <button class="text-yellow-600 hover:text-yellow-900 mr-3"><i class="fas fa-pencil-alt"></i></button>
+                                            <button class="text-red-600 hover:text-red-900"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="bg-gray-50 px-6 py-3 flex items-center justify-between border-t border-gray-200">
+                            <div class="flex-1 flex justify-between sm:hidden">
+                                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">Previous</a>
+                                <a href="#" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">Next</a>
+                            </div>
+                            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-700">
+                                        Showing <span class="font-medium">1</span> to <span class="font-medium">4</span> of <span class="font-medium">12</span> results
+                                    </p>
+                                </div>
+                                <div>
+                                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                        <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                            <span class="sr-only">Previous</span>
+                                            <i class="fas fa-chevron-left"></i>
+                                        </a>
+                                        <a href="#" aria-current="page" class="z-10 bg-blue-50 border-blue-500 text-blue-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">1</a>
+                                        <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">2</a>
+                                        <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">3</a>
+                                        <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                            <span class="sr-only">Next</span>
+                                            <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </nav>
+                                </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Inventory Page -->
+                <div id="inventoryPage" class="page-content hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800">Inventory Management</h2>
+                        <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200">
+                            <i class="fas fa-plus mr-2"></i> Add New Product
+                        </button>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden mb-6 fade-in">
+                        <div class="p-4 border-b border-gray-200">
+                            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                                <div class="relative mb-4 md:mb-0 md:w-64">
+                                    <input type="text" placeholder="Search products..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-full">
+                                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <select class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        <option>All Categories</option>
+                                        <option>Fresh Provisions</option>
+                                        <option>Technical Supplies</option>
+                                        <option>Gas Refills</option>
+                                        <option>Laundry Services</option>
+                                    </select>
+                                    <select class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        <option>All Stock Status</option>
+                                        <option>In Stock</option>
+                                        <option>Low Stock</option>
+                                        <option>Out of Stock</option>
+                                    </select>
+                                    <button class="bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg transition-colors duration-200">
+                                        <i class="fas fa-filter"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock Code</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item Name</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit Price</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">In Stock</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Updated</th>
+                                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">FP-001</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Potatoes</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Fresh Provisions</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">kg</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">KES 120</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">280</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2023-06-20</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <button class="text-blue-600 hover:text-blue-900 mr-3"><i class="fas fa-eye"></i></button>
+                                            <button class="text-yellow-600 hover:text-yellow-900 mr-3"><i class="fas fa-pencil-alt"></i></button>
+                                            <button class="text-red-600 hover:text-red-900"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">TS-015</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Mooring Rope (50mm)</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Technical Supplies</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">meter</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">KES 850</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">150</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2023-06-18</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <button class="text-blue-600 hover:text-blue-900 mr-3"><i class="fas fa-eye"></i></button>
+                                            <button class="text-yellow-600 hover:text-yellow-900 mr-3"><i class="fas fa-pencil-alt"></i></button>
+                                            <button class="text-red-600 hover:text-red-900"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">GR-003</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">LPG Cylinder (12kg)</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Gas Refills</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">piece</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">KES 2,500</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">80</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2023-06-19</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <button class="text-blue-600 hover:text-blue-900 mr-3"><i class="fas fa-eye"></i></button>
+                                            <button class="text-yellow-600 hover:text-yellow-900 mr-3"><i class="fas fa-pencil-alt"></i></button>
+                                            <button class="text-red-600 hover:text-red-900"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">LS-007</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Industrial Detergent</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Laundry Services</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">liter</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">KES 1,200</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">40</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2023-06-17</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <button class="text-blue-600 hover:text-blue-900 mr-3"><i class="fas fa-eye"></i></button>
+                                            <button class="text-yellow-600 hover:text-yellow-900 mr-3"><i class="fas fa-pencil-alt"></i></button>
+                                            <button class="text-red-600 hover:text-red-900"><i class="fas fa-trash"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="bg-gray-50 px-6 py-3 flex items-center justify-between border-t border-gray-200">
+                            <div class="flex-1 flex justify-between sm:hidden">
+                                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">Previous</a>
+                                <a href="#" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">Next</a>
+                            </div>
+                            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-700">
+                                        Showing <span class="font-medium">1</span> to <span class="font-medium">4</span> of <span class="font-medium">24</span> results
+                                    </p>
+                                </div>
+                                <div>
+                                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                        <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                            <span class="sr-only">Previous</span>
+                                            <i class="fas fa-chevron-left"></i>
+                                        </a>
+                                        <a href="#" aria-current="page" class="z-10 bg-blue-50 border-blue-500 text-blue-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">1</a>
+                                        <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">2</a>
+                                        <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">3</a>
+                                        <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                            <span class="sr-only">Next</span>
+                                            <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Customers Page -->
+                <div id="customersPage" class="page-content hidden">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-2xl font-bold text-gray-800">Customers Management</h2>
+                        <button class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg transition-colors duration-200">
+                            <i class="fas fa-plus mr-2"></i> Add New Customer
+                        </button>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow-sm overflow-hidden mb-6 fade-in">
+                        <div class="p-4 border-b border-gray-200">
+                            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                                <div class="relative mb-4 md:mb-0 md:w-64">
+                                    <input type="text" placeholder="Search customers..." class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 w-full">
+                                    <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+                                </div>
+                                <div class="flex space-x-2">
+                                    <select class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                        <option>All Customers</option>
+                                        <option>Shipping Companies</option>
+                                        <option>Private Vessels</option>
+                                        <option>Fishing Fleets</option>
+                                    </select>
+                                    <input type="date" class="border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                                    <button class="bg-gray-100 hover:bg-gray-200 px-3 py-2 rounded-lg transition-colors duration-200">
+                                        <i class="fas fa-filter"></i>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="overflow-x-auto">
+                            <table class="min-w-full divide-y divide-gray-200">
+                                <thead class="bg-gray-50">
+                                    <tr>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer Name</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Primary Vessel</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact Person</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Order</th>
+                                        <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Orders</th>
+                                        <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="bg-white divide-y divide-gray-200">
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">East Africa Shipping Co.</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">MV Ocean Star</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">John Mwangi</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">+254 712 345678</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">john@eastafricashipping.com</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2023-06-15</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">8</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <button class="text-blue-600 hover:text-blue-900 mr-3"><i class="fas fa-eye"></i></button>
+                                            <button class="text-yellow-600 hover:text-yellow-900 mr-3"><i class="fas fa-pencil-alt"></i></button>
+                                            <button class="text-green-600 hover:text-green-900"><i class="fas fa-shopping-cart"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Blue Ocean Fishing</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">MV Sea Breeze</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Ahmed Hassan</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">+254 733 987654</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">ahmed@blueoceanfishing.com</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2023-06-18</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">5</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <button class="text-blue-600 hover:text-blue-900 mr-3"><i class="fas fa-eye"></i></button>
+                                            <button class="text-yellow-600 hover:text-yellow-900 mr-3"><i class="fas fa-pencil-alt"></i></button>
+                                            <button class="text-green-600 hover:text-green-900"><i class="fas fa-shopping-cart"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Mediterranean Cruises</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">MV Horizon</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">Maria Rodriguez</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">+254 720 112233</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">maria@medcruises.com</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2023-06-20</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">3</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <button class="text-blue-600 hover:text-blue-900 mr-3"><i class="fas fa-eye"></i></button>
+                                            <button class="text-yellow-600 hover:text-yellow-900 mr-3"><i class="fas fa-pencil-alt"></i></button>
+                                            <button class="text-green-600 hover:text-green-900"><i class="fas fa-shopping-cart"></i></button>
+                                        </td>
+                                    </tr>
+                                    <tr class="hover:bg-gray-50">
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">Private Charter</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">MV Coral Princess</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">James Peterson</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">+254 711 556677</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">james@coralprincess.com</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2023-06-22</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">2</td>
+                                        <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                            <button class="text-blue-600 hover:text-blue-900 mr-3"><i class="fas fa-eye"></i></button>
+                                            <button class="text-yellow-600 hover:text-yellow-900 mr-3"><i class="fas fa-pencil-alt"></i></button>
+                                            <button class="text-green-600 hover:text-green-900"><i class="fas fa-shopping-cart"></i></button>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <div class="bg-gray-50 px-6 py-3 flex items-center justify-between border-t border-gray-200">
+                            <div class="flex-1 flex justify-between sm:hidden">
+                                <a href="#" class="relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">Previous</a>
+                                <a href="#" class="ml-3 relative inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50">Next</a>
+                            </div>
+                            <div class="hidden sm:flex-1 sm:flex sm:items-center sm:justify-between">
+                                <div>
+                                    <p class="text-sm text-gray-700">
+                                        Showing <span class="font-medium">1</span> to <span class="font-medium">4</span> of <span class="font-medium">16</span> results
+                                    </p>
+                                </div>
+                                <div>
+                                    <nav class="relative z-0 inline-flex rounded-md shadow-sm -space-x-px" aria-label="Pagination">
+                                        <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-l-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                            <span class="sr-only">Previous</span>
+                                            <i class="fas fa-chevron-left"></i>
+                                        </a>
+                                        <a href="#" aria-current="page" class="z-10 bg-blue-50 border-blue-500 text-blue-600 relative inline-flex items-center px-4 py-2 border text-sm font-medium">1</a>
+                                        <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">2</a>
+                                        <a href="#" class="bg-white border-gray-300 text-gray-500 hover:bg-gray-50 relative inline-flex items-center px-4 py-2 border text-sm font-medium">3</a>
+                                        <a href="#" class="relative inline-flex items-center px-2 py-2 rounded-r-md border border-gray-300 bg-white text-sm font-medium text-gray-500 hover:bg-gray-50">
+                                            <span class="sr-only">Next</span>
+                                            <i class="fas fa-chevron-right"></i>
+                                        </a>
+                                    </nav>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Settings Page -->
+                <div id="settingsPage" class="page-content hidden">
+                    <div class="bg-white p-6 rounded-lg shadow-sm fade-in">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-6">Settings</h2>
+                        <p class="text-gray-600">This is the settings page. Future functionality will include:</p>
+                        <ul class="list-disc pl-5 mt-2 text-gray-600">
+                            <li>User Management</li>
+                            <li>Pricing Rules Configuration</li>
+                            <li>Inventory Settings</li>
+                            <li>Notification Preferences</li>
+                        </ul>
+                    </div>
+                </div>
+                
+                <!-- Help Center Page -->
+                <div id="helpPage" class="page-content hidden">
+                    <div class="bg-white p-6 rounded-lg shadow-sm fade-in">
+                        <h2 class="text-2xl font-bold text-gray-800 mb-6">Help Center</h2>
+                        <p class="text-gray-600">This is the help center page. Future functionality will include:</p>
+                        <ul class="list-disc pl-5 mt-2 text-gray-600">
+                            <li>Frequently Asked Questions</li>
+                            <li>Contact Support Form</li>
+                            <li>System Documentation</li>
+                            <li>Training Resources</li>
+                        </ul>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        const mobileSidebarToggle = document.getElementById('mobileSidebarToggle');
+        const navItems = document.querySelectorAll('.nav-item');
+        const pageContents = document.querySelectorAll('.page-content');
+        const userMenuButton = document.getElementById('userMenuButton');
+        const userMenu = document.getElementById('userMenu');
+        
+        // Check screen size and set initial sidebar state
+        function checkScreenSize() {
+            if (window.innerWidth < 768) {
+                sidebar.classList.add('sidebar-closed');
+            } else {
+                sidebar.classList.remove('sidebar-closed');
+            }
+        }
+        
+        // Initialize sidebar state
+        checkScreenSize();
+        
+        // Toggle sidebar
+        function toggleSidebar() {
+            sidebar.classList.toggle('sidebar-closed');
+        }
+        
+        // Event listeners
+        sidebarToggle.addEventListener('click', toggleSidebar);
+        mobileSidebarToggle.addEventListener('click', toggleSidebar);
+        
+        // User menu toggle
+        userMenuButton.addEventListener('click', () => {
+            userMenu.classList.toggle('hidden');
+        });
+        
+        // Close user menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!userMenu.contains(e.target) && e.target !== userMenuButton) {
+                userMenu.classList.add('hidden');
+            }
+        });
+        
+        // Navigation between pages
+        navItems.forEach(item => {
+            item.addEventListener('click', (e) => {
+                e.preventDefault();
+                
+                // Remove active class from all nav items
+                navItems.forEach(navItem => {
+                    navItem.classList.remove('active-nav-item');
+                });
+                
+                // Add active class to clicked nav item
+                item.classList.add('active-nav-item');
+                
+                // Hide all page contents
+                pageContents.forEach(content => {
+                    content.classList.add('hidden');
+                });
+                
+                // Show the selected page content
+                const pageId = item.getAttribute('data-page') + 'Page';
+                document.getElementById(pageId).classList.remove('hidden');
+                
+                // Close sidebar on mobile after selection
+                if (window.innerWidth < 768) {
+                    sidebar.classList.add('sidebar-closed');
+                }
+                
+                // Reinitialize charts when showing overview page
+                if (pageId === 'overviewPage') {
+                    initializeCharts();
+                }
+            });
+        });
+        
+        // Handle window resize
+        window.addEventListener('resize', checkScreenSize);
+        
+        // Initialize charts
+        function initializeCharts() {
+            // Product Categories Chart (Donut)
+            const productCategoriesCtx = document.getElementById('productCategoriesChart').getContext('2d');
+            const productCategoriesChart = new Chart(productCategoriesCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Fresh Provisions', 'Technical Supplies', 'Gas Refills', 'Laundry Services'],
+                    datasets: [{
+                        data: [280, 150, 80, 40],
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.7)',
+                            'rgba(16, 185, 129, 0.7)',
+                            'rgba(249, 115, 22, 0.7)',
+                            'rgba(139, 92, 246, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(59, 130, 246, 1)',
+                            'rgba(16, 185, 129, 1)',
+                            'rgba(249, 115, 22, 1)',
+                            'rgba(139, 92, 246, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                        }
+                    },
+                    animation: {
+                        animateScale: true,
+                        animateRotate: true
+                    }
+                }
+            });
+            
+            // Monthly Financials Chart (Bar)
+            const monthlyFinancialsCtx = document.getElementById('monthlyFinancialsChart').getContext('2d');
+            const monthlyFinancialsChart = new Chart(monthlyFinancialsCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [
+                        {
+                            label: 'Revenue',
+                            data: [200, 220, 250, 230, 280, 260],
+                            backgroundColor: 'rgba(59, 130, 246, 0.7)',
+                            borderColor: 'rgba(59, 130, 246, 1)',
+                            borderWidth: 1
+                        },
+                        {
+                            label: 'Operating Costs',
+                            data: [150, 160, 180, 170, 190, 175],
+                            backgroundColor: 'rgba(249, 115, 22, 0.7)',
+                            borderColor: 'rgba(249, 115, 22, 1)',
+                            borderWidth: 1
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: function(value) {
+                                    return 'KES ' + value + 'k';
+                                }
+                            }
+                        }
+                    },
+                    animation: {
+                        duration: 1000
+                    }
+                }
+            });
+            
+            // Order Trend Chart (Line)
+            const orderTrendCtx = document.getElementById('orderTrendChart').getContext('2d');
+            const orderTrendChart = new Chart(orderTrendCtx, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                    datasets: [
+                        {
+                            label: 'Actual Orders',
+                            data: [85, 90, 110, 105, 125, 128],
+                            borderColor: 'rgba(59, 130, 246, 1)',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            borderWidth: 2,
+                            tension: 0.3,
+                            fill: true
+                        },
+                        {
+                            label: 'Target Orders',
+                            data: [80, 85, 100, 110, 120, 130],
+                            borderColor: 'rgba(139, 92, 246, 1)',
+                            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                            borderWidth: 2,
+                            borderDash: [5, 5],
+                            tension: 0.3,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    animation: {
+                        duration: 1000
+                    }
+                }
+            });
+            
+            // Deliveries by Location Chart (Bar)
+            const deliveriesCtx = document.getElementById('deliveriesChart').getContext('2d');
+            const deliveriesChart = new Chart(deliveriesCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Container Terminal', 'Bulk Terminal', 'Cruise Terminal', 'Shipyard'],
+                    datasets: [{
+                        label: 'Deliveries',
+                        data: [70, 30, 15, 10],
+                        backgroundColor: [
+                            'rgba(59, 130, 246, 0.7)',
+                            'rgba(16, 185, 129, 0.7)',
+                            'rgba(249, 115, 22, 0.7)',
+                            'rgba(139, 92, 246, 0.7)'
+                        ],
+                        borderColor: [
+                            'rgba(59, 130, 246, 1)',
+                            'rgba(16, 185, 129, 1)',
+                            'rgba(249, 115, 22, 1)',
+                            'rgba(139, 92, 246, 1)'
+                        ],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: {
+                        y: {
+                            beginAtZero: true
+                        }
+                    },
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    },
+                    animation: {
+                        duration: 1000
+                    }
+                }
+            });
+        }
+        
+        // Initialize charts when page loads
+        document.addEventListener('DOMContentLoaded', initializeCharts);
+    </script>
+</body>
+</html>
