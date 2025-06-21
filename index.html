@@ -45,7 +45,7 @@
         }
 
         .content-area {
-            transition: margin-left 0.3s ease-in-out; /* Only for desktop margin control */
+            transition: margin-left 0.5s ease-in-out; /* Only for desktop margin control */
         }
 
         /* Overlay for mobile when sidebar is open */
@@ -176,7 +176,22 @@
         .sidebar .search-wrapper .search-input {
             transition: all 0.2s ease-in-out;
         }
-    </style>
+    
+    .flex.h-screen.overflow-hidden {
+        gap: 0 !important;
+    }
+    #sidebar {
+        margin-right: 0 !important;
+    }
+    #contentArea {
+        margin-left: 0 !important;
+    }
+
+    /* Modal styles */
+    #modalOverlay:not(.hidden) { display: block; }
+    #orderModal:not(.hidden), #productModal:not(.hidden), #customerModal:not(.hidden) { display: flex; }
+    #orderModal, #productModal, #customerModal { display: none; align-items: center; justify-content: center; }
+</style>
 </head>
 <body class="bg-gray-100 font-sans">
     <div class="flex h-screen overflow-hidden">
@@ -228,7 +243,7 @@
                     <li>
                         <a href="#" data-page="customers" class="nav-item flex items-center p-3 rounded-lg">
                             <i class="fas fa-users w-6 text-center"></i>
-                            <span class="ml-3 sidebar-nav-text">Customers</span>
+                            <span class="ml-3 sidebar-nav-text">Clients</span>
                         </a>
                     </li>
                     <li>
@@ -273,6 +288,124 @@
         </div>
     </div>
 
+    <!-- Modal Overlay -->
+    <div id="modalOverlay" class="fixed inset-0 bg-black bg-opacity-40 z-50 hidden"></div>
+
+    <!-- Create New Order Modal -->
+    <div id="orderModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+      <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
+        <button class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl leading-none" onclick="closeModal('orderModal')">&times;</button>
+        <h2 class="text-xl font-bold mb-4">Create New Order</h2>
+        <form id="orderForm">
+          <div class="mb-4">
+            <label class="block text-gray-700 mb-1">Vessel Name</label>
+            <input type="text" class="w-full border rounded px-3 py-2" required>
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 mb-1">Order Date</label>
+            <input type="date" class="w-full border rounded px-3 py-2" required>
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 mb-1">Order Details</label>
+            <textarea class="w-full border rounded px-3 py-2" rows="3" required></textarea>
+          </div>
+          <button type="submit" class="bg-yellow-500 hover:bg-yellow-600 text-white px-4 py-2 rounded">Submit Order</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Add New Product Modal -->
+    <div id="productModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+      <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
+        <button class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl leading-none" onclick="closeModal('productModal')">&times;</button>
+        <h2 class="text-xl font-bold mb-4">Add New Product</h2>
+        <form id="productForm">
+          <div class="mb-4">
+            <label class="block text-gray-700 mb-1">Product Name</label>
+            <input type="text" class="w-full border rounded px-3 py-2" required>
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 mb-1">Category</label>
+            <input type="text" class="w-full border rounded px-3 py-2" required>
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 mb-1">Unit Price</label>
+            <input type="number" class="w-full border rounded px-3 py-2" required>
+          </div>
+          <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">Add Product</button>
+        </form>
+      </div>
+    </div>
+
+    <!-- Add New Customer Modal -->
+    <div id="customerModal" class="fixed inset-0 z-50 flex items-center justify-center hidden">
+      <div class="bg-white rounded-lg shadow-lg w-full max-w-md p-6 relative">
+        <button class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl leading-none" onclick="closeModal('customerModal')">&times;</button>
+        <h2 class="text-xl font-bold mb-4">Add New Customer</h2>
+        <form id="customerForm">
+          <div class="mb-4">
+            <label class="block text-gray-700 mb-1">Customer Name</label>
+            <input type="text" class="w-full border rounded px-3 py-2" required>
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 mb-1">Contact Email</label>
+            <input type="email" class="w-full border rounded px-3 py-2" required>
+          </div>
+          <div class="mb-4">
+            <label class="block text-gray-700 mb-1">Phone Number</label>
+            <input type="tel" class="w-full border rounded px-3 py-2" required>
+          </div>
+          <button type="submit" class="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded">Add Customer</button>
+        </form>
+      </div>
+    </div>
+
+    <script>
+        function openModal(modalId) {
+          document.getElementById('modalOverlay').classList.remove('hidden');
+          document.getElementById(modalId).classList.remove('hidden');
+        }
+        function closeModal(modalId) {
+          document.getElementById('modalOverlay').classList.add('hidden');
+          document.getElementById(modalId).classList.add('hidden');
+        }
+        document.addEventListener('DOMContentLoaded', function() {
+          // Button event listeners (delegated)
+          document.body.addEventListener('click', function(e) {
+            if (e.target.closest('button') && e.target.closest('button').textContent.includes('Create New Order')) {
+              openModal('orderModal');
+            }
+            if (e.target.closest('button') && e.target.closest('button').textContent.includes('Add New Product')) {
+              openModal('productModal');
+            }
+            if (e.target.closest('button') && (e.target.closest('button').textContent.includes('Add New Customer') || e.target.closest('button').textContent.includes('Add New Client'))) {
+              openModal('customerModal');
+            }
+          });
+          // Overlay click closes any modal
+          document.getElementById('modalOverlay').addEventListener('click', function() {
+            closeModal('orderModal');
+            closeModal('productModal');
+            closeModal('customerModal');
+          });
+          // Simple form submission (demo only)
+          document.getElementById('orderForm').onsubmit = function(e) {
+            e.preventDefault();
+            alert('Order submitted!');
+            closeModal('orderModal');
+          };
+          document.getElementById('productForm').onsubmit = function(e) {
+            e.preventDefault();
+            alert('Product added!');
+            closeModal('productModal');
+          };
+          document.getElementById('customerForm').onsubmit = function(e) {
+            e.preventDefault();
+            alert('Customer added!');
+            closeModal('customerModal');
+          };
+        });
+    </script>
     <script>
         // Data generators
         const dataGenerators = {
@@ -732,11 +865,14 @@
             },
             
             renderOrders: function(filterText = '') {
-                let orders = dataGenerators.generateOrders(20); // Generate more orders for filtering
-                
+                let orders = persistentOrders;
+                if (orders.length === 0) {
+                    orders = dataGenerators.generateOrders(5);
+                    persistentOrders.push(...orders);
+                }
                 if (filterText) {
                     filterText = filterText.toLowerCase();
-                    orders = orders.filter(order => 
+                    orders = orders.filter(order =>
                         order.id.toLowerCase().includes(filterText) ||
                         order.vessel.toLowerCase().includes(filterText) ||
                         order.status.toLowerCase().includes(filterText)
@@ -836,11 +972,14 @@
             },
             
             renderInventory: function(filterText = '') {
-                let inventory = dataGenerators.generateInventory();
-                
+                let inventory = persistentInventory;
+                if (inventory.length === 0) {
+                    inventory = dataGenerators.generateInventory();
+                    persistentInventory.push(...inventory);
+                }
                 if (filterText) {
                     filterText = filterText.toLowerCase();
-                    inventory = inventory.filter(item => 
+                    inventory = inventory.filter(item =>
                         item.id.toLowerCase().includes(filterText) ||
                         item.name.toLowerCase().includes(filterText) ||
                         item.category.toLowerCase().includes(filterText)
@@ -943,11 +1082,14 @@
             },
             
             renderCustomers: function(filterText = '') {
-                let customers = dataGenerators.generateCustomers();
-                
+                let customers = persistentCustomers;
+                if (customers.length === 0) {
+                    customers = dataGenerators.generateCustomers(5);
+                    persistentCustomers.push(...customers);
+                }
                 if (filterText) {
                     filterText = filterText.toLowerCase();
-                    customers = customers.filter(customer => 
+                    customers = customers.filter(customer =>
                         customer.id.toLowerCase().includes(filterText) ||
                         customer.name.toLowerCase().includes(filterText) ||
                         customer.vessel.toLowerCase().includes(filterText) ||
@@ -959,11 +1101,11 @@
                     <div class="mb-6">
                         <div class="flex flex-col md:flex-row md:items-center md:justify-between">
                             <div>
-                                <h1 class="text-2xl font-bold text-gray-800">Customers Management</h1>
-                                <p class="text-gray-600">View and manage all customer accounts</p>
+                                <h1 class="text-2xl font-bold text-gray-800">Client Management</h1>
+                                <p class="text-gray-600">View and manage all client accounts</p>
                             </div>
                             <button class="mt-4 md:mt-0 bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition duration-200">
-                                <i class="fas fa-plus mr-2"></i> Add New Customer
+                                <i class="fas fa-plus mr-2"></i> Add New Client
                             </button>
                         </div>
                     </div>
@@ -987,7 +1129,7 @@
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50">
                                     <tr>
-                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer Name</th>
+                                        <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Shipping Line</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Primary Vessel</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact Person</th>
                                         <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
@@ -1011,6 +1153,7 @@
                                                 <button class="text-blue-500 hover:text-blue-700 mr-3"><i class="fas fa-eye"></i></button>
                                                 <button class="text-yellow-500 hover:text-yellow-700 mr-3"><i class="fas fa-edit"></i></button>
                                                 <button class="text-green-500 hover:text-green-700"><i class="fas fa-shopping-cart"></i></button>
+                                                <button class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
                                             </td>
                                         </tr>
                                     `).join('')}
@@ -1334,42 +1477,678 @@
             }
         };
         
-        // Initialize the application
-        document.addEventListener('DOMContentLoaded', () => {
-            // Initialize sidebar
-            sidebarManager.initResponsiveBehavior();
-            
-            // Set up sidebar toggle
-            document.getElementById('sidebarToggle').addEventListener('click', () => {
-                sidebarManager.toggleSidebar();
-            });
-            
-            // Set up navigation links
-            document.querySelectorAll('[data-page]').forEach(link => {
-                link.addEventListener('click', (e) => {
-                    e.preventDefault();
-                    const page = link.getAttribute('data-page');
-                    pageRenderers.loadPage(page);
-                    // Close sidebar on mobile after clicking a link
-                    if (sidebarManager.isMobile && sidebarManager.isExpanded) {
-                        sidebarManager.toggleSidebar();
-                    }
-                });
-            });
+        // --- Persistent In-Memory Data Arrays ---
+const persistentOrders = [];
+const persistentInventory = [];
+const persistentCustomers = [];
 
-            // Set up global search input listener in sidebar
-            const globalSearchInput = document.getElementById('sidebarSearchInput');
-            if (globalSearchInput) {
-                globalSearchInput.addEventListener('input', (e) => {
-                    const filterText = e.target.value;
-                    const currentPage = pageRenderers.currentPage;
-                    pageRenderers.loadPage(currentPage, filterText); // Reload current page with filter
-                });
+// --- Utility Functions ---
+function generateUniqueId(prefix, arr) {
+    let idNum = arr.length + 1;
+    let id;
+    do {
+        id = `${prefix}-${String(idNum).padStart(3, '0')}`;
+        idNum++;
+    } while (arr.some(item => item.id === id));
+    return id;
+}
+
+// --- Modal Management ---
+function openModal(type, mode = 'add', data = null) {
+    // Remove any existing modal
+    document.querySelectorAll('.custom-modal').forEach(m => m.remove());
+    let modalHtml = '';
+    if (type === 'order') {
+        modalHtml = `
+        <div class="custom-modal fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
+            <div class="bg-white rounded-lg shadow-lg p-8 w-full max-w-lg relative">
+                <button class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 close-modal">&times;</button>
+                <h2 class="text-xl font-bold mb-4">${mode === 'add' ? 'Create New Order' : 'Edit Order'}</h2>
+                <form id="orderForm">
+                    <input type="hidden" name="id" value="${data?.id || ''}">
+                    <div class="mb-4">
+                        <label class="block text-gray-700">Vessel Name</label>
+                        <input name="vessel" class="w-full border rounded px-3 py-2" required value="${data?.vessel || ''}">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700">Port Call Date</label>
+                        <input name="portDate" type="date" class="w-full border rounded px-3 py-2" required value="${data?.portDate || ''}">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700">Delivery Date</label>
+                        <input name="deliveryDate" type="date" class="w-full border rounded px-3 py-2" required value="${data?.deliveryDate || ''}">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700">Status</label>
+                        <select name="status" class="w-full border rounded px-3 py-2" required>
+                            <option value="Pending" ${data?.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                            <option value="In Progress" ${data?.status === 'In Progress' ? 'selected' : ''}>In Progress</option>
+                            <option value="Delivered" ${data?.status === 'Delivered' ? 'selected' : ''}>Delivered</option>
+                            <option value="Cancelled" ${data?.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                        </select>
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700">Total Value (KES)</label>
+                        <input name="total" type="number" class="w-full border rounded px-3 py-2" required value="${data?.total || ''}">
+                    </div>
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">${mode === 'add' ? 'Add Order' : 'Update Order'}</button>
+                </form>
+            </div>
+        </div>`;
+    } else if (type === 'inventory') {
+        modalHtml = `
+        <div class="custom-modal fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
+            <div class="bg-white rounded-lg shadow-lg p-8 w-full max-w-lg relative">
+                <button class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 close-modal">&times;</button>
+                <h2 class="text-xl font-bold mb-4">${mode === 'add' ? 'Add New Product' : 'Edit Product'}</h2>
+                <form id="inventoryForm">
+                    <input type="hidden" name="id" value="${data?.id || ''}">
+                    <div class="mb-4">
+                        <label class="block text-gray-700">Product Name</label>
+                        <input name="name" class="w-full border rounded px-3 py-2" required value="${data?.name || ''}">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700">Category</label>
+                        <input name="category" class="w-full border rounded px-3 py-2" required value="${data?.category || ''}">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700">Unit</label>
+                        <input name="unit" class="w-full border rounded px-3 py-2" required value="${data?.unit || ''}">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700">Unit Price (KES)</label>
+                        <input name="price" type="number" class="w-full border rounded px-3 py-2" required value="${data?.price || ''}">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700">Quantity</label>
+                        <input name="quantity" type="number" class="w-full border rounded px-3 py-2" required value="${data?.quantity || ''}">
+                    </div>
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">${mode === 'add' ? 'Add Product' : 'Update Product'}</button>
+                </form>
+            </div>
+        </div>`;
+    } else if (type === 'customer') {
+        modalHtml = `
+        <div class="custom-modal fixed inset-0 flex items-center justify-center z-50 bg-black bg-opacity-40">
+            <div class="bg-white rounded-lg shadow-lg p-8 w-full max-w-lg relative">
+                <button class="absolute top-2 right-2 text-gray-400 hover:text-gray-700 close-modal">&times;</button>
+                <h2 class="text-xl font-bold mb-4">${mode === 'add' ? 'Add New Client' : 'Edit Client'}</h2>
+                <form id="customerForm">
+                    <input type="hidden" name="id" value="${data?.id || ''}">
+                    <div class="mb-4">
+                        <label class="block text-gray-700">Shipping Line</label>
+                        <input name="name" class="w-full border rounded px-3 py-2" required value="${data?.name || ''}">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700">Primary Vessel</label>
+                        <input name="vessel" class="w-full border rounded px-3 py-2" required value="${data?.vessel || ''}">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700">Contact Person</label>
+                        <input name="contact" class="w-full border rounded px-3 py-2" required value="${data?.contact || ''}">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700">Phone</label>
+                        <input name="phone" class="w-full border rounded px-3 py-2" required value="${data?.phone || ''}">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700">Email</label>
+                        <input name="email" type="email" class="w-full border rounded px-3 py-2" required value="${data?.email || ''}">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700">Last Order</label>
+                        <input name="lastOrder" type="date" class="w-full border rounded px-3 py-2" value="${data?.lastOrder || ''}">
+                    </div>
+                    <div class="mb-4">
+                        <label class="block text-gray-700">Total Orders</label>
+                        <input name="totalOrders" type="number" class="w-full border rounded px-3 py-2" value="${data?.totalOrders || ''}">
+                    </div>
+                    <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-2 rounded">${mode === 'add' ? 'Add Client' : 'Update Client'}</button>
+                </form>
+            </div>
+        </div>`;
+    }
+    document.body.insertAdjacentHTML('beforeend', modalHtml);
+    document.querySelector('.close-modal').onclick = () => document.querySelector('.custom-modal').remove();
+    document.querySelector('.custom-modal').onclick = e => { if (e.target.classList.contains('custom-modal')) e.target.remove(); };
+}
+
+// --- CRUD Form Handlers ---
+document.addEventListener('submit', function(e) {
+    if (e.target.id === 'orderForm') {
+        e.preventDefault();
+        const form = e.target;
+        const formData = new FormData(form);
+        let id = formData.get('id');
+        if (!id) {
+            id = generateUniqueId('ORD', persistentOrders);
+            persistentOrders.push({
+                id,
+                vessel: formData.get('vessel'),
+                portDate: formData.get('portDate'),
+                deliveryDate: formData.get('deliveryDate'),
+                status: formData.get('status'),
+                total: Number(formData.get('total'))
+            });
+        } else {
+            const idx = persistentOrders.findIndex(o => o.id === id);
+            if (idx !== -1) {
+                persistentOrders[idx] = {
+                    id,
+                    vessel: formData.get('vessel'),
+                    portDate: formData.get('portDate'),
+                    deliveryDate: formData.get('deliveryDate'),
+                    status: formData.get('status'),
+                    total: Number(formData.get('total'))
+                };
             }
+        }
+        document.querySelector('.custom-modal').remove();
+        pageRenderers.loadPage('orders');
+    }
+    if (e.target.id === 'inventoryForm') {
+        e.preventDefault();
+        const form = e.target;
+        const formData = new FormData(form);
+        let id = formData.get('id');
+        if (!id) {
+            id = generateUniqueId('PROD', persistentInventory);
+            persistentInventory.push({
+                id,
+                name: formData.get('name'),
+                category: formData.get('category'),
+                unit: formData.get('unit'),
+                price: Number(formData.get('price')),
+                quantity: Number(formData.get('quantity')),
+                updated: new Date().toISOString().split('T')[0]
+            });
+        } else {
+            const idx = persistentInventory.findIndex(p => p.id === id);
+            if (idx !== -1) {
+                persistentInventory[idx] = {
+                    id,
+                    name: formData.get('name'),
+                    category: formData.get('category'),
+                    unit: formData.get('unit'),
+                    price: Number(formData.get('price')),
+                    quantity: Number(formData.get('quantity')),
+                    updated: new Date().toISOString().split('T')[0]
+                };
+            }
+        }
+        document.querySelector('.custom-modal').remove();
+        pageRenderers.loadPage('inventory');
+    }
+    if (e.target.id === 'customerForm') {
+        e.preventDefault();
+        const form = e.target;
+        const formData = new FormData(form);
+        let id = formData.get('id');
+        if (!id) {
+            id = generateUniqueId('CUST', persistentCustomers);
+            persistentCustomers.push({
+                id,
+                name: formData.get('name'),
+                vessel: formData.get('vessel'),
+                contact: formData.get('contact'),
+                phone: formData.get('phone'),
+                email: formData.get('email'),
+                lastOrder: formData.get('lastOrder'),
+                totalOrders: Number(formData.get('totalOrders')) || 0
+            });
+        } else {
+            const idx = persistentCustomers.findIndex(c => c.id === id);
+            if (idx !== -1) {
+                persistentCustomers[idx] = {
+                    id,
+                    name: formData.get('name'),
+                    vessel: formData.get('vessel'),
+                    contact: formData.get('contact'),
+                    phone: formData.get('phone'),
+                    email: formData.get('email'),
+                    lastOrder: formData.get('lastOrder'),
+                    totalOrders: Number(formData.get('totalOrders')) || 0
+                };
+            }
+        }
+        document.querySelector('.custom-modal').remove();
+        pageRenderers.loadPage('customers');
+    }
+});
+
+// --- Event Delegation for Add/Edit/Delete ---
+document.addEventListener('click', function(e) {
+    // Add buttons (match by button text, not class)
+    if (e.target.closest('button')) {
+        const btn = e.target.closest('button');
+        if (btn.textContent.includes('Create New Order')) openModal('order', 'add');
+        if (btn.textContent.includes('Add New Product')) openModal('inventory', 'add');
+        if (btn.textContent.includes('Add New Client') || btn.textContent.includes('Add New Customer')) openModal('customer', 'add');
+    }
+    // Edit buttons
+    if (e.target.closest('.fa-edit')) {
+        const tr = e.target.closest('tr');
+        if (pageRenderers.currentPage === 'orders') {
+            const id = tr.children[0].textContent;
+            const data = persistentOrders.find(o => o.id === id);
+            openModal('order', 'edit', data);
+        } else if (pageRenderers.currentPage === 'inventory') {
+            const id = tr.children[0].textContent;
+            const data = persistentInventory.find(p => p.id === id);
+            openModal('inventory', 'edit', data);
+        } else if (pageRenderers.currentPage === 'customers') {
+            const id = tr.children[0].textContent;
+            const data = persistentCustomers.find(c => c.name === id || c.id === id);
+            openModal('customer', 'edit', data);
+        }
+    }
+    // Delete buttons
+    if (e.target.closest('.fa-trash')) {
+        const tr = e.target.closest('tr');
+        if (pageRenderers.currentPage === 'orders') {
+            const id = tr.children[0].textContent;
+            const idx = persistentOrders.findIndex(o => o.id === id);
+            if (idx !== -1) persistentOrders.splice(idx, 1);
+            pageRenderers.loadPage('orders');
+        } else if (pageRenderers.currentPage === 'inventory') {
+            const id = tr.children[0].textContent;
+            const idx = persistentInventory.findIndex(p => p.id === id);
+            if (idx !== -1) persistentInventory.splice(idx, 1);
+            pageRenderers.loadPage('inventory');
+        } else if (pageRenderers.currentPage === 'customers') {
+            const id = tr.children[0].textContent;
+            const idx = persistentCustomers.findIndex(c => c.name === id || c.id === id);
+            if (idx !== -1) persistentCustomers.splice(idx, 1);
+            pageRenderers.loadPage('customers');
+        }
+    }
+});
+
+// --- Override Renderers to Use Persistent Arrays ---
+pageRenderers.renderOrders = function(filterText = '') {
+    let orders = persistentOrders;
+    if (orders.length === 0) {
+        orders = dataGenerators.generateOrders(5);
+        persistentOrders.push(...orders);
+    }
+    if (filterText) {
+        filterText = filterText.toLowerCase();
+        orders = orders.filter(order =>
+            order.id.toLowerCase().includes(filterText) ||
+            order.vessel.toLowerCase().includes(filterText) ||
+            order.status.toLowerCase().includes(filterText)
+        );
+    }
+
+    return `
+        <div class="mb-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800">Orders Management</h1>
+                    <p class="text-gray-600">View and manage all vessel supply orders</p>
+                </div>
+                <button class="mt-4 md:mt-0 bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition duration-200">
+                    <i class="fas fa-plus mr-2"></i> Create New Order
+                </button>
+            </div>
+        </div>
+        
+        <div class="card bg-white rounded-lg shadow mb-6">
+            <div class="p-4 border-b border-gray-200">
+                <div class="flex flex-col md:flex-row md:items-center md:space-x-4">
+                    <div class="flex-1 mb-4 md:mb-0">
+                        <input type="text" id="orderSearchInput" placeholder="Search by Order ID or Vessel..." 
+                               class="w-full bg-gray-100 border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               value="${filterText}">
+                    </div>
+                    <div class="flex space-x-2">
+                        <select class="bg-gray-100 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">All Statuses</option>
+                            <option value="Pending">Pending</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Delivered">Delivered</option>
+                            <option value="Cancelled">Cancelled</option>
+                        </select>
+                        <input type="date" class="bg-gray-100 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <input type="date" class="bg-gray-100 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+            </div>
             
-            // Load default page
-            pageRenderers.loadPage('overview');
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Order ID</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Vessel Name</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Port Call Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Delivery Date</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Value</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        ${orders.map(order => `
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${order.id}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${order.vessel}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${order.portDate}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${order.deliveryDate}</td>
+                                <td class="px-6 py-4 whitespace-nowrap">
+                                    <span class="px-2 inline-flex text-xs leading-5 font-semibold rounded-full 
+                                        ${order.status === 'Delivered' ? 'bg-green-100 text-green-800' : 
+                                          order.status === 'In Progress' ? 'bg-blue-100 text-blue-800' :
+                                          order.status === 'Cancelled' ? 'bg-red-100 text-red-800' : 'bg-yellow-100 text-yellow-800'}">
+                                    ${order.status}
+                                    </span>
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">KES ${order.total.toLocaleString()}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <button class="text-blue-500 hover:text-blue-700 mr-3"><i class="fas fa-eye"></i></button>
+                                    <button class="text-yellow-500 hover:text-yellow-700 mr-3"><i class="fas fa-edit"></i></button>
+                                    <button class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="p-4 border-t border-gray-200 flex items-center justify-between">
+                <div class="text-sm text-gray-500">
+                    Showing <span class="font-medium">1</span> to <span class="font-medium">${orders.length > 10 ? 10 : orders.length}</span> of <span class="font-medium">${orders.length}</span> orders
+                </div>
+                <div class="flex space-x-2">
+                    <button class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        Previous
+                    </button>
+                    <button class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        Next
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+};
+
+pageRenderers.renderInventory = function(filterText = '') {
+    let inventory = persistentInventory;
+    if (inventory.length === 0) {
+        inventory = dataGenerators.generateInventory();
+        persistentInventory.push(...inventory);
+    }
+    if (filterText) {
+        filterText = filterText.toLowerCase();
+        inventory = inventory.filter(item =>
+            item.id.toLowerCase().includes(filterText) ||
+            item.name.toLowerCase().includes(filterText) ||
+            item.category.toLowerCase().includes(filterText)
+        );
+    }
+
+    return `
+        <div class="mb-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800">Inventory Management</h1>
+                    <p class="text-gray-600">Track and manage all products in stock</p>
+                </div>
+                <button class="mt-4 md:mt-0 bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition duration-200">
+                    <i class="fas fa-plus mr-2"></i> Add New Product
+                </button>
+            </div>
+        </div>
+        
+        <div class="card bg-white rounded-lg shadow mb-6">
+            <div class="p-4 border-b border-gray-200">
+                <div class="flex flex-col md:flex-row md:items-center md:space-x-4">
+                    <div class="flex-1 mb-4 md:mb-0">
+                        <input type="text" id="inventorySearchInput" placeholder="Search by product name or code..." 
+                               class="w-full bg-gray-100 border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               value="${filterText}">
+                    </div>
+                    <div class="flex space-x-2">
+                        <select class="bg-gray-100 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">All Categories</option>
+                            <option value="Fresh Provisions">Fresh Provisions</option>
+                            <option value="Technical Supplies">Technical Supplies</option>
+                            <option value="Gas Refills">Gas Refills</option>
+                            <option value="Laundry Supplies">Laundry Supplies</option>
+                        </select>
+                        <select class="bg-gray-100 border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                            <option value="">All Availability</option>
+                            <option value="In Stock">In Stock</option>
+                            <option value="Low Stock">Low Stock</option>
+                            <option value="Out of Stock">Out of Stock</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Stock Code</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Item Name</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Unit Price (KES)</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quantity</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Updated</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        ${inventory.map(item => `
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${item.id}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.name}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.category}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.unit}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.price.toLocaleString()}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium 
+                                    ${item.quantity === 0 ? 'text-red-500' : item.quantity < 10 ? 'text-yellow-500' : 'text-green-500'}">
+                                    ${item.quantity.toLocaleString()}
+                                </td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${item.updated}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <button class="text-blue-500 hover:text-blue-700 mr-3"><i class="fas fa-eye"></i></button>
+                                    <button class="text-yellow-500 hover:text-yellow-700 mr-3"><i class="fas fa-edit"></i></button>
+                                    <button class="text-green-500 hover:text-green-700 mr-3"><i class="fas fa-arrow-up"></i></button>
+                                    <button class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="p-4 border-t border-gray-200 flex items-center justify-between">
+                <div class="text-sm text-gray-500">
+                    Showing <span class="font-medium">1</span> to <span class="font-medium">${inventory.length > 10 ? 10 : inventory.length}</span> of <span class="font-medium">${inventory.length}</span> products
+                </div>
+                <div class="flex space-x-2">
+                    <button class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        Previous
+                    </button>
+                    <button class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        Next
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+};
+
+pageRenderers.renderCustomers = function(filterText = '') {
+    let customers = persistentCustomers;
+    if (customers.length === 0) {
+        customers = dataGenerators.generateCustomers(5);
+        persistentCustomers.push(...customers);
+    }
+    if (filterText) {
+        filterText = filterText.toLowerCase();
+        customers = customers.filter(customer =>
+            customer.id.toLowerCase().includes(filterText) ||
+            customer.name.toLowerCase().includes(filterText) ||
+            customer.vessel.toLowerCase().includes(filterText) ||
+            customer.contact.toLowerCase().includes(filterText)
+        );
+    }
+
+    return `
+        <div class="mb-6">
+            <div class="flex flex-col md:flex-row md:items-center md:justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-gray-800">Client Management</h1>
+                    <p class="text-gray-600">View and manage all client accounts</p>
+                </div>
+                <button class="mt-4 md:mt-0 bg-blue-500 hover:bg-blue-600 text-white font-medium py-2 px-4 rounded-lg transition duration-200">
+                    <i class="fas fa-plus mr-2"></i> Add New Client
+                </button>
+            </div>
+        </div>
+        
+        <div class="card bg-white rounded-lg shadow mb-6">
+            <div class="p-4 border-b border-gray-200">
+                <div class="flex flex-col md:flex-row md:items-center md:space-x-4">
+                    <div class="flex-1 mb-4 md:mb-0">
+                        <input type="text" id="customerSearchInput" placeholder="Search by customer or vessel name..." 
+                               class="w-full bg-gray-100 border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                               value="${filterText}">
+                    </div>
+                    <div class="flex space-x-2">
+                        <input type="text" placeholder="Contact person..." 
+                               class="bg-gray-100 border border-gray-200 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                    </div>
+                </div>
+            </div>
+            
+            <div class="overflow-x-auto">
+                <table class="min-w-full divide-y divide-gray-200">
+                    <thead class="bg-gray-50">
+                        <tr>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Shipping Line</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Primary Vessel</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact Person</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Phone</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Email</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Last Order</th>
+                            <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Total Orders</th>
+                            <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="bg-white divide-y divide-gray-200">
+                        ${customers.map(customer => `
+                            <tr>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${customer.name}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${customer.vessel}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${customer.contact}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${customer.phone}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${customer.email}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${customer.lastOrder}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">${customer.totalOrders}</td>
+                                <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                                    <button class="text-blue-500 hover:text-blue-700 mr-3"><i class="fas fa-eye"></i></button>
+                                    <button class="text-yellow-500 hover:text-yellow-700 mr-3"><i class="fas fa-edit"></i></button>
+                                    <button class="text-green-500 hover:text-green-700"><i class="fas fa-shopping-cart"></i></button>
+                                    <button class="text-red-500 hover:text-red-700"><i class="fas fa-trash"></i></button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>
+            
+            <div class="p-4 border-t border-gray-200 flex items-center justify-between">
+                <div class="text-sm text-gray-500">
+                    Showing <span class="font-medium">1</span> to <span class="font-medium">${customers.length > 10 ? 10 : customers.length}</span> of <span class="font-medium">${customers.length}</span> customers
+                </div>
+                <div class="flex space-x-2">
+                    <button class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        Previous
+                    </button>
+                    <button class="px-3 py-1 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50">
+                        Next
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+};
+
+pageRenderers.renderSettings = function() {
+    return `
+        <div class="mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">Settings</h1>
+            <p class="text-gray-600">Configure your account and system preferences</p>
+        </div>
+        
+        <div class="card bg-white p-6 rounded-lg shadow">
+            <div class="text-center py-12">
+                <i class="fas fa-cog text-5xl text-gray-300 mb-4"></i>
+                <h3 class="text-xl font-medium text-gray-700">Settings Dashboard</h3>
+                <p class="text-gray-500 mt-2">This section is under development and will be available soon.</p>
+            </div>
+        </div>
+    `;
+};
+
+pageRenderers.renderHelp = function() {
+    return `
+        <div class="mb-6">
+            <h1 class="text-2xl font-bold text-gray-800">Help Center</h1>
+            <p class="text-gray-600">Find answers to your questions and get support</p>
+        </div>
+        
+        <div class="card bg-white p-6 rounded-lg shadow">
+            <div class="text-center py-12">
+                <i class="fas fa-question-circle text-5xl text-gray-300 mb-4"></i>
+                <h3 class="text-xl font-medium text-gray-700">Help Center</h3>
+                <p class="text-gray-500 mt-2">This section is under development and will be available soon.</p>
+            </div>
+        </div>
+    `;
+};
+
+// Initialize the application
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize sidebar
+    sidebarManager.initResponsiveBehavior();
+    
+    // Set up sidebar toggle
+    document.getElementById('sidebarToggle').addEventListener('click', () => {
+        sidebarManager.toggleSidebar();
+    });
+    
+    // Set up navigation links
+    document.querySelectorAll('[data-page]').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const page = link.getAttribute('data-page');
+            pageRenderers.loadPage(page);
+            // Close sidebar on mobile after clicking a link
+            if (sidebarManager.isMobile && sidebarManager.isExpanded) {
+                sidebarManager.toggleSidebar();
+            }
         });
+    });
+
+    // Set up global search input listener in sidebar
+    const globalSearchInput = document.getElementById('sidebarSearchInput');
+    if (globalSearchInput) {
+        globalSearchInput.addEventListener('input', (e) => {
+            const filterText = e.target.value;
+            const currentPage = pageRenderers.currentPage;
+            pageRenderers.loadPage(currentPage, filterText); // Reload current page with filter
+        });
+    }
+    
+    // Load default page
+    pageRenderers.loadPage('overview');
+});
     </script>
 </body>
 </html>
